@@ -1,18 +1,24 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Auth } from './decorators';
-import { GetUser } from './decorators/get-user.decorator';
-import { CreateUserDto, LoginUserDto } from './dto/';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Auth, GetUser } from './decorators';
+import { CreateUserDto, LoginUserDto, RegisterDto, UpdateUserDto } from './dto/';
 import { User } from './entities/user.entity';
+import { ValidRoles } from './enums/valid-roles.enum';
 
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {
     }
 
+    // Normal user registration
     @Post('register')
+    register(@Body() registerDto: RegisterDto) {
+        return this.authService.register(registerDto);
+    }
+
+    // Creation by admin
+    @Auth(ValidRoles.admin)
+    @Post('create')
     createUser(@Body() createUserDto: CreateUserDto) {
         return this.authService.create(createUserDto);
     }
@@ -22,8 +28,14 @@ export class AuthController {
         return this.authService.login(loginUserDto);
     }
 
+    @Auth(ValidRoles.admin)
+    @Delete(':id')
+    deleteUser(@Param('id', ParseIntPipe) id: number) {
+        return this.authService.delete(id);
+    }
+
     @Patch('update/:id')
-    @Auth()
+    @Auth(ValidRoles.user)
     updateUser(
         @Param('id', ParseIntPipe) id: number,
         @GetUser() user: User,
@@ -32,7 +44,7 @@ export class AuthController {
     }
 
     @Get('check-auth-status')
-    @UseGuards(AuthGuard())
+    @Auth()
     checkAuthStatus(@GetUser() user: User) {
         return this.authService.checkAuthStatus(user);
     }

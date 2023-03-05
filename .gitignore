@@ -2,8 +2,9 @@
 /dist
 /node_modules
 /docker
-.env
-
+*.env
+.eslintrc.js
+.prettierrc
 # Logs
 logs
 *.log

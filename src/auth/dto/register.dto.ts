@@ -1,7 +1,6 @@
-import { IsArray, IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validator';
-import { ValidRoles } from '../enums/valid-roles.enum';
+import { IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
-export class CreateUserDto {
+export class RegisterDto {
     @IsString()
     @IsEmail()
     email: string;
@@ -14,7 +13,4 @@ export class CreateUserDto {
             'The password must have a Uppercase, lowercase letter and a number',
     })
     password: string;
-
-    @IsArray()
-    roles: ValidRoles[];
 }
